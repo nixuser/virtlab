@@ -1,0 +1,18 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define "xendemo" do |server|
+    config.vm.box = "generic/debian10"
+
+    config.vm.provider "virtualbox" do |vb|
+      # Customize the amount of memory on the VM:
+      vb.memory = "1024"
+    end
+
+    server.vm.provision "shell",
+      name: "Setup xen",
+      path: "setup_xen.sh"
+  end
+end

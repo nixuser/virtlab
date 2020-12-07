@@ -21,7 +21,8 @@ sed -i -e 's/# DBHost=localhost/DBHost=localhost/' /etc/zabbix/zabbix_server.con
 sed -i -e 's/# DBPassword=/DBPassword=zabbix/' /etc/zabbix/zabbix_server.conf
 
 # httpd config
-sed -e "/listen/ s/# listen/listen/" /etc/zabbix/nginx.conf
-sed -e "/server_name/ s/# server_name/server_name/" /etc/zabbix/nginx.conf
+sed -i -e "/listen/ s/#.*listen/listen/" /etc/zabbix/nginx.conf
+sed -i -e "/server_name/ s/#.*server_name/server_name/" /etc/zabbix/nginx.conf
+sed -i -e "/server_name/ s/example.com/localhost/" /etc/zabbix/nginx.conf
 
 systemctl enable --now zabbix-server zabbix-agent nginx php7.2-fpm

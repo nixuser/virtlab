@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+ config.vm.define "udemo" do |udemo|
+  udemo.vm.box = "generic/ubuntu2004"
+  udemo.vm.network "private_network", ip: "192.168.34.10"
+ end
+
+ config.vm.define "centos" do |centdemo|
+    centdemo.vm.box = 'centos/8.2'
+    centdemo.vm.host_name = 'centosdemo'
+    centdemo.vm.network "private_network", ip: "192.168.34.11"
+ end
+
+ config.vm.define "debian" do |deb|
+  deb.vm.box = "generic/debian10"
+  deb.vm.host_name = 'debiandemo'
+  deb.vm.network "private_network", ip: "192.168.34.12"
+ end
+end
+
+
+

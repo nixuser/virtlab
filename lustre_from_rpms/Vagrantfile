@@ -1,0 +1,44 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# This file uses experimental feature. To enable experimental feature
+# export VAGRANT_EXPERIMENTAL="disks"
+
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = 'centos/7.7'
+    config.vm.box_url = 'http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-2001_01.VirtualBox.box'
+    config.vm.box_download_checksum = 'e1a26038fb036ab8e76a6a4dfcd49856'
+    config.vm.box_download_checksum_type = 'md5'
+
+  config.vm.provider 'virtualbox' do |vbx|
+    vbx.linked_clone = true
+    vbx.customize ['modifyvm', :id, '--audio', 'none']
+  end
+
+ config.vm.provision 'shell', path: './install-lustre-packages.sh'
+
+ config.vm.define "mgs" do |mgs|
+    mgs.vm.host_name = 'mgs'
+    mgs.vm.network "private_network", ip: "192.168.34.11"
+    mgs.vm.disk :disk, size: "64MB", name: "extra_storage"
+ end
+
+ config.vm.define "mds" do |mds|
+    mds.vm.host_name = 'mds'
+    mds.vm.network "private_network", ip: "192.168.34.12"
+    mds.vm.disk :disk, size: "512MB", name: "extra_storage"
+ end
+
+ config.vm.define "oss" do |oss|
+    oss.vm.host_name = 'oss'
+    oss.vm.network "private_network", ip: "192.168.34.13"
+    oss.vm.disk :disk, size: "1GB", name: "extra_storage1"
+    oss.vm.disk :disk, size: "1GB", name: "extra_storage2"
+ end
+
+end
+
+
+

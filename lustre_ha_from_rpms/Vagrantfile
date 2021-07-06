@@ -1,0 +1,93 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# This file uses experimental feature. To enable experimental feature
+# export VAGRANT_EXPERIMENTAL="disks"
+
+def attach_disks(vbox)
+
+  # create SATA controller
+  DISKS.each_with_index do |name, i|
+    file_to_disk = "#{DIR}/#{name}.vdi"
+    port = (i).to_s
+    vbox.customize ['storageattach', :id,
+                    '--storagectl', 'SATA',
+                    '--port', port,
+                    '--type', 'hdd',
+                    '--mtype', 'shareable',
+                    '--medium', file_to_disk,
+                    '--device', '0']
+
+    vbox.customize ['setextradata', :id,
+                    "VBoxInternal/Devices/ahci/0/Config/Port#{port}/SerialNumber",
+                    name.ljust(20, '0')]
+  end
+end
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = 'centos/7.7'
+    config.vm.box_url = 'http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-2001_01.VirtualBox.box'
+    config.vm.box_download_checksum = 'e1a26038fb036ab8e76a6a4dfcd49856'
+    config.vm.box_download_checksum_type = 'md5'
+
+  config.vm.provider 'virtualbox' do |vbx|
+    vbx.linked_clone = true
+    vbx.customize ['modifyvm', :id, '--audio', 'none']
+  end
+
+ config.vm.provision 'shell', path: './install-lustre-packages.sh'
+ config.vm.provision 'shell', path: './install-ha-packages.sh'
+
+
+ # create disks
+ config.vm.provider 'virtualbox' do |vbx|
+  DIR = '../vdisks'
+  DISKS = [ "mgt", "mdt", "ost1", "ost2", ]
+  size = 2048
+
+  vbx.customize ['storagectl', :id,
+                  '--name', 'SATA',
+                  '--add', 'sata' ]
+  DISKS.each_with_index do |name, i|
+    file_to_disk = "#{DIR}/#{name}.vdi"
+    unless File.file?(file_to_disk)
+      vbx.customize ['createmedium',
+                      'disk',
+                      '--filename',
+                      file_to_disk,
+                      '--size',
+                      size,
+                      '--format',
+                      'VDI',
+                      '--variant',
+                      'fixed']
+      vbx.customize ['modifymedium', file_to_disk, '--type', 'shareable']
+    end
+  end
+ end
+
+ 
+ config.vm.define "server1" do |host|
+    host.vm.host_name = 'server1'
+    host.vm.network "private_network", ip: "192.168.34.12"
+    host.vm.network "private_network", ip: "192.168.20.12"
+    # attach disks
+    config.vm.provider 'virtualbox' do |srv|
+      attach_disks(srv)
+    end
+ end
+
+ config.vm.define "server2" do |host|
+    host.vm.host_name = 'server2'
+    host.vm.network "private_network", ip: "192.168.34.13"
+    host.vm.network "private_network", ip: "192.168.20.13"
+    config.vm.provider 'virtualbox' do |srv|
+      attach_disks(srv)
+    end
+ end
+
+end
+
+
+

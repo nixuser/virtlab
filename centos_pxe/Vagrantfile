@@ -36,7 +36,7 @@ config.vm.define "pxeserver" do |server|
     pxeclient.vm.host_name = 'pxeclient'
     pxeclient.vm.network :private_network, ip: "10.0.0.21"
     pxeclient.vm.provider :virtualbox do |vb|
-      vb.memory = "1024"
+      vb.memory = "2048"
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       vb.customize [
           'modifyvm', :id,

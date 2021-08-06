@@ -28,9 +28,9 @@ systemctl enable rsyncd.service
 systemctl start  rsyncd.service
 
 
-# sed 's/next_server: 127.0.0.1/next_server: 192.168.1.10/' /etc/cobbler/settings
-# sed 's/^server: 127.0.0.1/server: 192.168.1.10/' /etc/cobbler/settings
-# sed 's/^manage_dhcp: 0/manage_dhcp: 1/' /etc/cobbler/settings
-# sed '/disable/ s/yes/no/' /etc/xinetd.d/tftp
-# sed 's/^@dists/# @dists/' /etc/debmirror.conf
-# sed 's/^@arches/# @arches/' /etc/debmirror.conf
+# sed -i 's/next_server: 127.0.0.1/next_server: 192.168.1.10/' /etc/cobbler/settings
+# sed -i 's/^server: 127.0.0.1/server: 192.168.1.10/' /etc/cobbler/settings
+# sed -i 's/^manage_dhcp: 0/manage_dhcp: 1/' /etc/cobbler/settings
+# sed -i '/disable/ s/yes/no/' /etc/xinetd.d/tftp
+# sed -i 's/^@dists/# @dists/' /etc/debmirror.conf
+# sed -i 's/^@arches/# @arches/' /etc/debmirror.conf

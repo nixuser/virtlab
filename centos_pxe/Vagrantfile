@@ -1,13 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+# export VAGRANT_EXPERIMENTAL="disks"
 
 Vagrant.configure("2") do |config|
 
 config.vm.define "pxeserver" do |server|
-  config.vm.box = 'centos/8.2'
-  config.vm.box_url = 'https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-Vagrant-8.2.2004-20200611.2.x86_64.vagrant-virtualbox.box'
-  config.vm.box_download_checksum = '698b0d9c6c3f31a4fd1c655196a5f7fc224434112753ab6cb3218493a86202de'
-  config.vm.box_download_checksum_type = 'sha256'
+  server.vm.box = 'centos/8.4'
+  server.vm.disk :disk, size: "15GB", name: "extra_storage1"
 
   server.vm.host_name = 'pxeserver'
   server.vm.network :private_network, 
@@ -28,11 +27,10 @@ config.vm.define "pxeserver" do |server|
   end
 
 
-# Cent OS 8.2
 # config used from this
 # https://github.com/eoli3n/vagrant-pxe/blob/master/client/Vagrantfile
   config.vm.define "pxeclient" do |pxeclient|
-    pxeclient.vm.box = 'centos/8.2'
+    pxeclient.vm.box = 'centos/8.4'
     pxeclient.vm.host_name = 'pxeclient'
     pxeclient.vm.network :private_network, ip: "10.0.0.21"
     pxeclient.vm.provider :virtualbox do |vb|

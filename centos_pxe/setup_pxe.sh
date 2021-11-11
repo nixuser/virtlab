@@ -12,7 +12,7 @@ firewall-cmd --add-service=tftp
 setenforce 0
 # 
 
-centos_version=8.3.2011
+centos_version=8.4.2105
 
 cat >/etc/dhcp/dhcpd.conf <<EOF
 option space pxelinux;
@@ -65,11 +65,13 @@ LABEL linux
   menu label ^Install system
   menu default
   kernel images/CentOS-8/vmlinuz
-  append initrd=images/CentOS-8/initrd.img ip=enp0s3:dhcp inst.repo=nfs:10.0.0.20:/mnt/centos8-install
+  initrd images/CentOS-8/initrd.img 
+  append ip=enp0s3:dhcp inst.repo=nfs:10.0.0.20:/mnt/centos8-install
 LABEL linux-auto
   menu label ^Auto install system
   kernel images/CentOS-8/vmlinuz
-  append initrd=images/CentOS-8/initrd.img ip=enp0s3:dhcp inst.ks=nfs:10.0.0.20:/home/vagrant/cfg/ks.cfg inst.repo=nfs:10.0.0.20:/mnt/centos8-autoinstall
+  initrd images/CentOS-8/initrd.img
+  append ip=enp0s3:dhcp inst.ks=nfs:10.0.0.20:/home/vagrant/cfg/ks.cfg inst.repo=nfs:10.0.0.20:/mnt/centos8-install
 LABEL vesa
   menu label Install system with ^basic video driver
   kernel images/CentOS-8/vmlinuz
@@ -92,21 +94,24 @@ cp {vmlinuz,initrd.img} /var/lib/tftpboot/pxelinux/images/CentOS-8/
 # Setup NFS auto install
 # 
 
+# create exptra space because ISO does not fit to VM rootfs
+mkfs.xfs /dev/sdb
+mkdir /mnt/extraspace
+mount /dev/sdb /mnt/extraspace
+chown vagrant.vagrant  /mnt/extraspace
 # download ISO image and share it via NFS
 #curl -O http://ftp.mgts.by/pub/CentOS/$centos_version/BaseOS/x86_64/os/images/boot.iso
 #http://ftp.mgts.by/pub/CentOS/${centos_version}/isos/x86_64/CentOS-${centos_version}-x86_64-dvd1.iso
+
+# copy disk from local system scp -o Ciphers=aes128-gcm@openssh.com -F config ../CentOS-8.4.2105-x86_64-dvd1.iso pxeserver:/mnt/extraspace/
 mkdir /mnt/centos8-install
-mount -t iso9660 CentOS-${centos_version}-x86_64-dvd1.iso /mnt/centos8-install
+mount -t iso9660  /mnt/extraspace/CentOS-${centos_version}-x86_64-dvd1.iso /mnt/centos8-install
 echo '/mnt/centos8-install *(ro)' > /etc/exports
 systemctl start nfs-server.service
 
 
 autoinstall(){
   # to speedup replace URL with closest mirror
-  curl -O http://ftp.mgts.by/pub/CentOS/$centos_version/BaseOS/x86_64/os/images/boot.iso
-  mkdir /mnt/centos8-autoinstall
-  mount -t iso9660 boot.iso /mnt/centos8-autoinstall
-  echo '/mnt/centos8-autoinstall *(ro)' >> /etc/exports
   mkdir /home/vagrant/cfg
 cat > /home/vagrant/cfg/ks.cfg <<EOF
 #version=RHEL8
@@ -156,6 +161,7 @@ pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
 
 EOF
+chown -R vagrant.vagrant /home/vagrant/cfg
 echo '/home/vagrant/cfg *(ro)' >> /etc/exports
   systemctl reload nfs-server.service
 }

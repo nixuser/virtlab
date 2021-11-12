@@ -2,11 +2,15 @@
 
 yum install -y yum-utils
 
-sudo yum -y install http://download.zfsonlinux.org/epel/zfs-release.el8_2.noarch.rpm
-gpg --quiet --with-fingerprint /etc/pki/rpm-gpg/RPM-GPG-KEY-zfsonlinux
-yum-config-manager --enable zfs-kmod
-yum-config-manager --disable zfs
-yum install -y zfs
-modprobe zfs
+sudo yum -y install https://zfsonlinux.org/epel/zfs-release.el8_4.noarch.rpm 
+source /etc/os-release
+dnf install https://zfsonlinux.org/epel/zfs-release.el${VERSION_ID/./_}.noarch.rpm
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-zfsonlinux
+
+dnf config-manager --disable zfs
+dnf config-manager --enable zfs-kmod
+dnf install -y zfs
+#modprobe zfs
+
 
 

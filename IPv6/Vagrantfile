@@ -1,0 +1,70 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+home = ENV['HOME']
+
+Vagrant.configure(2) do |config|
+
+  config.vm.define "router" do |r1|
+    r1.vm.network "private_network", adapter: 2, :device => "eth1", auto_config: false, virtualbox__intnet: "enterprise"
+#    r1.vm.network "public_network", adapter: 3, :device => "eth2", use_dhcp_assigned_default_route: true, bridge: "eth0"
+    r1.vm.network "private_network", adapter: 8, :device => "eth7", ip: '192.168.11.100', netmask: "255.255.255.0" # Management
+    r1.vm.hostname = "router"
+    r1.vm.box = "centos/7"
+    r1.vm.box_version = "1905.1"
+    r1.vm.provider :virtualbox do |virtualbox|
+      virtualbox.name = "ipv6_router"
+      virtualbox.customize ["modifyvm", :id, "--memory", "512"]
+      virtualbox.customize ["modifyvm", :id, "--cpus", "2"]
+    end
+    r1.vm.provision "shell", run: "always", inline: <<-SHELL
+    yes | yum install radvd dhcp tcpdump -y -q 2&1>/dev/null
+    SHELL
+  end
+
+  config.vm.define "client1" do |r2|
+    r2.vm.network "private_network", adapter: 2, :device => "eth1", auto_config: false, virtualbox__intnet: "enterprise"
+    r2.vm.network "private_network", adapter: 8, :device => "eth7", ip: '192.168.11.101', netmask: "255.255.255.0" # Management
+    r2.vm.hostname = "client1"
+    r2.vm.box = "centos/7"
+    r2.vm.box_version = "1905.1"
+    r2.vm.provider :virtualbox do |virtualbox|
+      virtualbox.name = "ipv6_client1"
+      virtualbox.customize ["modifyvm", :id, "--memory", "384"]
+      virtualbox.customize ["modifyvm", :id, "--cpus", "1"]
+    end
+    r2.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.define "client2" do |r3|
+    r3.vm.network "private_network", adapter: 2, :device => "eth1", auto_config: false, virtualbox__intnet: "enterprise"
+    r3.vm.network "private_network", adapter: 8, :device => "eth7", ip: '192.168.11.102', netmask: "255.255.255.0" # Management
+    r3.vm.hostname = "client1"
+    r3.vm.box = "centos/7"
+    r3.vm.box_version = "1905.1"
+    r3.vm.provider :virtualbox do |virtualbox|
+      virtualbox.name = "ipv6_client2"
+      virtualbox.customize ["modifyvm", :id, "--memory", "384"]
+      virtualbox.customize ["modifyvm", :id, "--cpus", "1"]
+    end
+    r3.vm.provision "shell", run: "always", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.provision "shell", run: "always", inline: <<-SHELL
+    mkdir -p ~root/.ssh
+    cp ~vagrant/.ssh/auth* ~root/.ssh
+    yes | yum install tcpdump -y -q 2&1>/dev/null
+    systemctl enable firewalld
+    systemctl start firewalld
+  SHELL
+
+  #config.vm.provision "ansible" do |ansible|
+  #  ansible.compatibility_mode = "2.0"
+  #  ansible.playbook = "ansible_repo/startall.yml"
+  #  ansible.verbose = "true"
+  #  ansible.become = "true"
+  #end
+
+end

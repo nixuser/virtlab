@@ -1,0 +1,12 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - basicSSHUserPrivateKey:
+          description: "SSH passphrase with private key file."
+          id: "ssh_with_passphrase_provided"
+          scope: SYSTEM
+          username: "vagrant"
+          privateKeySource:
+            directEntry:
+              privateKey: |

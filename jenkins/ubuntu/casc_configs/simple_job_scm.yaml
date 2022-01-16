@@ -1,0 +1,14 @@
+jobs:
+  - script: >
+      job('testjobs/example') {
+          logRotator(-1, 10)
+          scm {
+              github('agridyaev/otus-allure', 'master')
+          }
+          steps {
+              shell('echo some_content > results.log \n py.test-3 --junitxml=report.xml ./tests')
+          }
+          publishers {
+              archiveArtifacts('results.log')
+          }
+      }

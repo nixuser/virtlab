@@ -1,0 +1,54 @@
+jenkins:
+  systemMessage: "\n\nDemo setup for Jenkins Configuration as Code plugin......\n\n"
+
+  numExecutors: 0
+  mode: NORMAL
+  scmCheckoutRetryCount: 3
+  labelString: "master-label"  
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+       - id: admin
+         password: ${adminpw:-password}
+
+  authorizationStrategy:
+    globalMatrix:
+      grantedPermissions:
+        - "Overall/Read:anonymous"
+        - "Job/Read:anonymous"
+        - "View/Read:anonymous"
+        - "Overall/Administer:admin" 
+
+  crumbIssuer: "standard"
+
+  remotingSecurity:
+    enabled: true    
+
+  nodes:
+    - permanent:
+        labelString: "linux docker test"
+        mode: NORMAL
+        name: "utility-node-1"
+        numExecutors: 6
+        remoteFS: "/home/vagrant/jenkins"
+        launcher:
+          ssh:
+            host: "10.0.0.21"
+            port: 22
+            credentialsId: ssh_with_passphrase_provided
+            launchTimeoutSeconds: 60
+            maxNumRetries: 3
+            retryWaitTime: 30
+            sshHostKeyVerificationStrategy:
+              manuallyTrustedKeyVerificationStrategy:
+                requireInitialManualTrust: false
+
+tool:
+  git:
+    installations:
+      - name: Default
+        home: "git"
+
+

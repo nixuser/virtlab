@@ -1,4 +1,6 @@
 
 echo Setup commands
-apt-get -y install xen-system-amd64 xen-tools
+apt update
+apt -y install xen-system-amd64
+apt -y install xen-tools
 

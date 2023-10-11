@@ -4,11 +4,12 @@
 Vagrant.configure("2") do |config|
 
   config.vm.define "xendemo" do |server|
-    config.vm.box = "generic/debian10"
+    config.vm.box = "debian/bookworm64"
 
     config.vm.provider "virtualbox" do |vb|
       # Customize the amount of memory on the VM:
-      vb.memory = "1024"
+      vb.memory = "4096"
+      vb.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
     end
 
     server.vm.provision "shell",

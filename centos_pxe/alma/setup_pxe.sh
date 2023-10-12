@@ -94,9 +94,6 @@ cp /boot/efi/EFI/almalinux/shim.efi /var/lib/tftpboot/uefi/
 cp /vagrant/grub.cfg /var/lib/tftpboot/uefi/
 chmod -R a+r /var/lib/tftpboot/uefi
 
-# Setup NFS auto install
-# 
-
 # create exptra space because ISO does not fit to VM rootfs
 #mkfs.xfs /dev/sdb
 extraspace=/mnt/extraspace/
@@ -121,6 +118,8 @@ echo "$install *(ro)" > /etc/exports
 mkdir -p /var/lib/tftpboot/pxelinux/images/
 cp /mnt/install/images/pxeboot/{vmlinuz,initrd.img} /var/lib/tftpboot/pxelinux/images/
 
+
+# Setup NFS auto install
 mkdir /home/vagrant/cfg
 cp /vagrant/anaconda-ks.cfg /home/vagrant/cfg/ks.cfg
 chown -R vagrant.vagrant /home/vagrant/cfg

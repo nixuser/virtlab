@@ -1,0 +1,52 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+Vagrant.configure("2") do |config|
+
+config.vm.define "server" do |server|
+  config.vm.box = 'almalinux/9.2'
+
+  server.vm.host_name = 'server'
+  server.vm.network :private_network, ip: "10.0.0.41"
+  server.vm.network :private_network, ip: "10.10.0.41"
+  server.vm.network "forwarded_port", guest: 9869, host: 9869
+  server.vm.network "forwarded_port", guest: 2616, host: 2616
+
+  server.vm.provider "virtualbox" do |vb|
+    vb.memory = "4096"
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  end
+
+
+  server.vm.provision "shell",
+    name: "configuration",
+    path: "init.sh"
+  end
+
+
+  config.vm.define "client" do |client|
+    client.vm.box = 'almalinux/9.2'
+    client.vm.host_name = 'client'
+    client.vm.network :private_network, ip: "10.0.0.40"
+    client.vm.network :private_network, ip: "10.10.0.40"
+    client.vm.provider :virtualbox do |vb|
+      vb.memory = "4096"
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
+    end
+  end
+
+  config.vm.define "node2" do |node|
+    node.vm.box = 'almalinux/9.2'
+    node.vm.host_name = 'node2'
+    node.vm.network :private_network, ip: "10.0.0.42"
+    node.vm.network :private_network, ip: "10.10.0.42"
+    node.vm.provider :virtualbox do |vb|
+      vb.memory = "2048"
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
+    end
+  end
+
+end

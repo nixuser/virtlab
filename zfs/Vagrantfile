@@ -1,18 +1,17 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 # export VAGRANT_EXPERIMENTAL="disks"
+# or fish shell
+# set -x VAGRANT_EXPERIMENTAL disks
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = 'centos/8.4'
-  config.vm.box_url = 'https://cloud.centos.org/centos/8/x86_64/images/CentOS-8-Vagrant-8.4.2105-20210603.0.x86_64.vagrant-virtualbox.box'
-  config.vm.box_download_checksum = 'dfe4a34e59eb3056a6fe67625454c3607cbc52ae941aeba0498c29ee7cb9ac22'
-  config.vm.box_download_checksum_type = 'sha256'
+  config.vm.box = 'alma/9.4.20240805'
 
 config.vm.define "server" do |server|
 
   server.vm.provider "virtualbox" do |vb|
-    vb.memory = "1024"
+    vb.memory = "4096"
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
 
@@ -30,9 +29,6 @@ config.vm.define "server" do |server|
   end
 
 
-# Cent OS 8.2
-# config used from this
-# https://github.com/eoli3n/vagrant-pxe/blob/master/client/Vagrantfile
   config.vm.define "client" do |client|
     client.vm.host_name = 'client'
     client.vm.network :private_network, ip: "10.0.0.40"
@@ -40,7 +36,7 @@ config.vm.define "server" do |server|
     client.vm.disk :disk, size: "1GB", name: "disk2"
     client.vm.disk :disk, size: "1GB", name: "disk3"
     client.vm.provider :virtualbox do |vb|
-      vb.memory = "1024"
+      vb.memory = "4096"
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
   end
